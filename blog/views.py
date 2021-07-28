@@ -4,33 +4,48 @@ from .models import Post, Comment
 from .form import PostForm, CommentForm
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
+from .serializers import PostSerializer
+import json
+from django.contrib.auth.models import User
 
+@api_view(["GET"])
+@csrf_exempt
 def post_list(request):
     posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
-    return render(request, 'blog/post_list.html', {'posts': posts})
+    serializer = PostSerializer(posts, many=True)
+    return JsonResponse({'posts': serializer.data})
+
 
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
     return render(request, 'blog/post_detail.html', {'post': post})
 
-@login_required
+
+@api_view(["POST"])
+@csrf_exempt
 def post_new(request):
-    if request.method == "POST":
-        form = PostForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.save()
-            return redirect('post_list')
-    else:
-        form = PostForm()
-    return render(request, 'blog/post_edit.html',{'form' : form})
+    jsondata = json.loads(request.body)
+    #author = request.user.username
+    me = User.objects.get(username="ybc")
+
+    post = Post.objects.create(
+        author=me,
+        title=jsondata["title"],
+        text=jsondata["text"],
+        published_date=timezone.now()
+    )
+    serializer = PostSerializer(post)
+    return JsonResponse({'posts': serializer.data})
+
 
 @login_required
 def post_edit(request, pk):
     post = get_object_or_404(Post, pk=pk)
     if request.method == "POST":
-        form = PostForm(request.POST, instance = post)
+        form = PostForm(request.POST, instance=post)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
@@ -38,17 +53,20 @@ def post_edit(request, pk):
             return redirect('post_detail', pk=post.pk)
     else:
         form = PostForm(instance=post)
-    return render(request, 'blog/post_edit.html', {'form' : form})
+    return render(request, 'blog/post_edit.html', {'form': form})
+
 
 @login_required
 def post_draft_list(request):
     posts = Post.objects.filter(published_date__isnull=True).order_by('created_date')
-    return render(request, 'blog/post_draft_list.html', {'posts' : posts})
+    return render(request, 'blog/post_draft_list.html', {'posts': posts})
+
 
 def post_publish(request, pk):
     post = get_object_or_404(Post, pk=pk)
     post.publish()
     return redirect('post_detail', pk=pk)
+
 
 @login_required
 def post_remove(request, pk):
@@ -70,11 +88,13 @@ def add_comment_to_post(request, pk):
         form = CommentForm()
     return render(request, 'blog/add_comment_to_post.html', {'form': form})
 
+
 @login_required
 def comment_approve(request, pk):
     comment = get_object_or_404(Comment, pk=pk)
     comment.approve()
     return redirect('post_detail', pk=comment.post.pk)
+
 
 @login_required
 def comment_remove(request, pk):
