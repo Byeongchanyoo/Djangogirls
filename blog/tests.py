@@ -17,7 +17,7 @@ class TestPost(TestCase):
     def setUp(self):
         self.username = "Testuser"
         self.password = "Test123"
-        self.user = User.objects.create(username=self.username)
+        self.user = User.objects.create_user(username=self.username, password=self.password)
         self.user.set_password(self.password)
         self.user.save()
 
