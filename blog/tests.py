@@ -98,3 +98,43 @@ class TestPost(TestCase):
 
         # Then : Post 생성되지 않고, Badrequest 반환
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+
+    def test_update_post(self):
+        # Given : 로그인 후에 post 하나 생성해 놓고 update data 만들기
+        self.client.login(username=self.username, password=self.password)
+        post = self._create_new_post(self.user, "update_test", "update_text")
+        fixed_data = {"title": "fixed_title", "text": "fixed_text"}
+
+        # When : post update 요청
+        response = self.client.post(reverse("post_edit", kwargs={"pk": post.pk}), data=fixed_data)
+
+
+        # Then : 기존 pk를 가진 post가 fixed_data로 수정됨
+        post_data = json.loads(response.json()["post_data"])[0]["fields"]
+
+        self.assertEqual(response.status_code, HTTPStatus.CREATED)
+        self.assertEqual(post_data["title"], fixed_data["title"])
+        self.assertEqual(post_data["text"], fixed_data["text"])
+
+    def test_update_without_login(self):
+        # Given : 로그인 하지말고 update 진행해 본다
+        post = self._create_new_post(self.user, "update_test", "update_text")
+        fixed_data = {"title": "fixed_title", "text": "fixed_text"}
+
+        # When : post update 요청
+        response = self.client.post(reverse("post_edit", kwargs={"pk": post.pk}), data=fixed_data)
+
+        # Then : 로그인 페이지로 리다이렉팅 되는지 확인
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+
+    def test_update_with_bad_case(self):
+        # Given : 로그인하고 bad form으로 수정해본다.
+        self.client.login(username=self.username, password=self.password)
+        post = self._create_new_post(self.user, "update_test", "update_text")
+        fixed_data = {"title": "BadBadBad"}
+
+        # When : post update 요청
+        response = self.client.post(reverse("post_edit", kwargs={"pk": post.pk}), data=fixed_data)
+
+        # Then : Bad_Request 반환하는지 확인
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)

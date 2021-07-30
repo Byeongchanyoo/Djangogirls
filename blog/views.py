@@ -32,7 +32,7 @@ def post_new(request):
             post_data = serializers.serialize('json', [post, ])
             return JsonResponse({'post_data': post_data}, status=HTTPStatus.CREATED)
         else:
-            msg = {"message": "잘못된 입력입니다."}
+            msg = {"message": "잘못된 형식입니다."}
             return JsonResponse(msg, status=HTTPStatus.BAD_REQUEST)
     else:
         form = PostForm()
@@ -48,7 +48,11 @@ def post_edit(request, pk):
             post = form.save(commit=False)
             post.author = request.user
             post.save()
-            return redirect('post_detail', pk=post.pk)
+            post_data = serializers.serialize('json', [post, ])
+            return JsonResponse({'post_data': post_data}, status=HTTPStatus.CREATED)
+        else:
+            msg = {"message": "잘못된 형식입니다."}
+            return JsonResponse(msg, status=HTTPStatus.BAD_REQUEST)
     else:
         form = PostForm(instance=post)
     return render(request, 'blog/post_edit.html', {'form': form})
