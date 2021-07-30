@@ -21,7 +21,7 @@ class TestPost(TestCase):
         self.user.set_password(self.password)
         self.user.save()
 
-    def test_get_all_posts(self):
+    def test_post_list_should_return_200_ok(self):
         # Given : 새로운 Post 생성
         for _ in range(30):
             self._create_new_post(self.user, "title", "text")
@@ -35,7 +35,7 @@ class TestPost(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(len(data), 30)
 
-    def test_get_one_post(self):
+    def test_one_post_should_return_200_ok_and_instance_should_equal_given(self):
         # Given : get할 새로운 post 미리 생성
         post = self._create_new_post(self.user, "test_title", "test_text")
 
@@ -50,7 +50,7 @@ class TestPost(TestCase):
         self.assertEqual(post_data["title"], post.title)
         self.assertEqual(post_data["text"], post.text)
 
-    def test_get_not_exist_post(self):
+    def test_not_exist_post_return_404_not_found(self):
         # Given : 존재하지 않는 post pk
         sample_pk = 1234
 
@@ -60,7 +60,7 @@ class TestPost(TestCase):
         # The : NOTFOUND 반환
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
-    def test_create_new_post(self):
+    def test_post_new_return_200_ok_and_instance_should_equal_given(self):
         # Given : 로그인 하고 난 후에 post 데이터 생성
         self.client.login(username=self.username, password=self.password)
         data = {"title": "test_title", "text": "test_text"}
@@ -78,7 +78,7 @@ class TestPost(TestCase):
         self.assertEqual(post["text"], data["text"])
         self.assertIsNone(post["published_date"])
 
-    def test_redirect_login_page_if_not_login(self):
+    def test_post_new_if_not_login_should_return_302_found(self):
         # Given : 로그인 안하고 post 데이터 생성
         data = {"title": "login_page_test", "text": "login_page_test_text"}
 
@@ -88,7 +88,7 @@ class TestPost(TestCase):
         # Then : 제대로 redirect 되었는지 확인
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
-    def test_create_bad_post(self):
+    def test_post_new_wiht_bad_data_should_return_400_bad_request(self):
         # Given : 로그인 + 잘못된 형식의 데이터
         self.client.login(username=self.username, password=self.password)
         data = {"title": "there is no TEXT"}
