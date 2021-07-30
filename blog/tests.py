@@ -52,7 +52,7 @@ class TestPost(TestCase):
 
     def test_not_exist_post_return_404_not_found(self):
         # Given : 존재하지 않는 post pk
-        sample_pk = 1234
+        not_exist_post_pk = 1234
 
         # When : 존재하지 않는 post 조회
         response = self.client.get(reverse("post_detail", kwargs={"pk": sample_pk}))
