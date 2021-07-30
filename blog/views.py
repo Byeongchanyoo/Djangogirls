@@ -32,8 +32,7 @@ def post_new(request):
             post_data = serializers.serialize('json', [post, ])
             return JsonResponse({'post_data': post_data}, status=HTTPStatus.CREATED)
         else:
-            msg = {"message": "잘못된 입력입니다."}
-            return JsonResponse(msg, status=HTTPStatus.BAD_REQUEST)
+            return JsonResponse({"message": "잘못된 입력입니다."}, status=HTTPStatus.BAD_REQUEST)
     else:
         form = PostForm()
     return render(request, 'blog/post_edit.html', {'form': form})
