@@ -6,19 +6,18 @@ from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from http import HTTPStatus
 from django.http import JsonResponse
-from django.core import serializers
+import json
 
 
 def post_list(request):
     posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
-    post_data = serializers.serialize('json', posts)
-    return JsonResponse({'post_data': post_data}, status=HTTPStatus.OK)
+    post_data = json.dumps([post.make_json() for post in posts])
+    return JsonResponse({"post_data": post_data}, status=HTTPStatus.OK)
 
 
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
-    post_data = serializers.serialize('json', [post, ])
-    return JsonResponse({'post_data': post_data}, status=HTTPStatus.OK)
+    return JsonResponse({"post_data": post.make_json()}, status=HTTPStatus.OK)
 
 
 @login_required
@@ -29,13 +28,13 @@ def post_new(request):
             post = form.save(commit=False)
             post.author = request.user
             post.save()
-            post_data = serializers.serialize('json', [post, ])
+            post_data = post.make_json()
             return JsonResponse({'post_data': post_data}, status=HTTPStatus.CREATED)
         else:
-            return JsonResponse({"message": "잘못된 입력입니다."}, status=HTTPStatus.BAD_REQUEST)
+            return JsonResponse({"message": "invalid Data"}, status=HTTPStatus.BAD_REQUEST)
     else:
-        form = PostForm()
-    return render(request, 'blog/post_edit.html', {'form': form})
+        return JsonResponse({"message": "NOT POST"}, status=HTTPStatus.OK)
+
 
 
 @login_required
