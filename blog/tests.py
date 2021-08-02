@@ -129,14 +129,14 @@ class TestPost(TestCase):
         # Then: status_code가 404로 되어야 한다.
         self.assertEqual(response.status_code, 404)
 
-    def test_update_with_bad_case(self):
-        # Given : 로그인하고 bad form으로 수정해본다.
-        self.client.login(username=self.username, password=self.password)
-        post = self._create_new_post(self.user, "update_test", "update_text")
-        fixed_data = {"title": "BadBadBad"}
+    def test_post_update_should_return_400_bad_request(self):
+        # Given: post 1개를 생성하고,
+        post = self._create_new_post(user=self.user, title="update_test", text="update_text")
+        # And: 사용자가 수정을 요구한 데이터를 설정한다음
+        put_data = {"title": "updated test title"}
 
         # When : post update 요청
-        response = self.client.post(reverse("post_edit", kwargs={"pk": post.pk}), data=fixed_data)
+        response = self.client.put(reverse("post_edit", kwargs={"pk": post.pk}), data=put_data)
 
         # Then : Bad_Request 반환하는지 확인
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)

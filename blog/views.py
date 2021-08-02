@@ -53,9 +53,14 @@ def post_edit(request, pk):
     except Post.DoesNotExist:
         return JsonResponse(data={}, status=404)
     request_body = json.loads(request.body.decode("utf-8").replace("'", '"'))
-    post.title = request_body["title"]
-    post.text = request_body["text"]
-    post.save()
+
+    try:
+        post.title = request_body["title"]
+        post.text = request_body["text"]
+    except KeyError:
+        return JsonResponse(data={}, status=400)
+    else:
+        post.save()
     return JsonResponse(data={}, status=200)
 
 
