@@ -51,17 +51,17 @@ def post_edit(request, pk):
     try:
         post = Post.objects.get(pk=pk)
     except Post.DoesNotExist:
-        return JsonResponse(data={}, status=404)
+        return JsonResponse(data={}, status=HTTPStatus.NOT_FOUND)
     request_body = json.loads(request.body.decode("utf-8").replace("'", '"'))
 
     try:
         post.title = request_body["title"]
         post.text = request_body["text"]
     except KeyError:
-        return JsonResponse(data={}, status=400)
+        return JsonResponse(data={}, status=HTTPStatus.BAD_REQUEST)
     else:
         post.save()
-    return JsonResponse(data={}, status=200)
+    return JsonResponse(data={}, status=HTTPStatus.OK)
 
 
 @login_required

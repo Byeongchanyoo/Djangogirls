@@ -111,7 +111,7 @@ class TestPost(TestCase):
         response = self.client.put(reverse("post_edit", kwargs={"pk": post.pk}), data=put_data)
 
         # Then: status_code가 200으로 리턴되어야 한다
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         # And: post의 title이 "updated test title" 이어야 한다.
         updated_post = Post.objects.get(id=post.id)
         self.assertEqual(updated_post.title, "updated test title")
@@ -127,7 +127,7 @@ class TestPost(TestCase):
         response = self.client.put(reverse("post_edit", kwargs={"pk": invalid_pk}), data=put_data)
 
         # Then: status_code가 404로 되어야 한다.
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
     def test_post_update_should_return_400_bad_request(self):
         # Given: post 1개를 생성하고,
