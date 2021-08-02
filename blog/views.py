@@ -45,6 +45,11 @@ def post_new(request):
 
 
 def post_edit(request, pk):
+    if request.method == "PATCH":
+        post = Post.objects.get(pk=pk)
+        request_body = json.loads(request.body.decode("utf-8").replace("'",'"'))
+        post.title = request_body["title"]
+        post.save()
     return JsonResponse(data={}, status=200)
 
 

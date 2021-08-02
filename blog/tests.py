@@ -112,6 +112,9 @@ class TestPost(TestCase):
 
         # Then: status_code가 200으로 리턴되어야 한다
         self.assertEqual(response.status_code, 200)
+        # And: post의 title이 "updated test title" 이어야 한다.
+        updated_post = Post.objects.get(id=post.id)
+        self.assertEqual(updated_post.title, "updated test title")
 
     def test_update_without_login(self):
         # Given : 로그인 하지말고 update 진행해 본다
