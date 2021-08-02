@@ -21,15 +21,6 @@ class Post(models.Model):
         self.published_date = timezone.now()
         self.save()
 
-    def make_json(self):
-        return {
-            "author": self.author.pk,
-            "title": self.title,
-            "text": self.text,
-            "created_date": str(self.created_date),
-            "published_date": str(self.published_date),
-        }
-
     def approved_comments(self):
         return self.comments.filter(approved_comment=True)
 
@@ -37,7 +28,7 @@ class Comment(models.Model):
     post = models.ForeignKey('blog.Post', on_delete=models.CASCADE, related_name='comments')
     author = models.CharField(max_length=200)
     text = models.TextField()
-    created_date = models.DateTimeField(default=timezone.now)
+    created_date = models.DateTimeField(default=timezone.now())
     approved_comment = models.BooleanField(default=False)
 
     def approve(self):

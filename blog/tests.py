@@ -78,6 +78,7 @@ class TestPost(TestCase):
         self.assertEqual(post_data["author"], self.user.pk)
         self.assertEqual(post_data["title"], data["title"])
         self.assertEqual(post_data["text"], data["text"])
+        self.assertIsNone(post_data["published_date"])
 
     def test_post_new_if_not_login_should_return_302_found(self):
         # Given : 로그인 안하고 post 데이터 생성
