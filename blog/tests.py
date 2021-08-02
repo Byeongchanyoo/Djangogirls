@@ -101,22 +101,17 @@ class TestPost(TestCase):
         # Then : 400 BAD_REQUEST를 반환해야한다.
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
 
-    def test_update_post(self):
-        # Given : 로그인 후에 post 하나 생성해 놓고 update data 만들기
-        self.client.login(username=self.username, password=self.password)
-        post = self._create_new_post(self.user, "update_test", "update_text")
-        fixed_data = {"title": "fixed_title", "text": "fixed_text"}
+    def test_post_update_should_return_200_ok(self):
+        # Given: post 1개를 생성하고,
+        post = self._create_new_post(user=self.user, title="update_test", text="update_text")
+        # And: 사용자가 수정을 요구한 데이터를 설정한다음
+        patch_data = {"title": "updated test title"}
 
-        # When : post update 요청
-        response = self.client.post(reverse("post_edit", kwargs={"pk": post.pk}), data=fixed_data)
+        # When: post_update view 를 호출하면,
+        response = self.client.patch(reverse("post_edit", kwargs={"pk": post.pk}), data=patch_data)
 
-
-        # Then : 기존 pk를 가진 post가 fixed_data로 수정됨
-        post_data = json.loads(response.json()["post_data"])[0]["fields"]
-
-        self.assertEqual(response.status_code, HTTPStatus.CREATED)
-        self.assertEqual(post_data["title"], fixed_data["title"])
-        self.assertEqual(post_data["text"], fixed_data["text"])
+        # Then: status_code가 200으로 리턴되어야 한다
+        self.assertEqual(response.status_code, 200)
 
     def test_update_without_login(self):
         # Given : 로그인 하지말고 update 진행해 본다

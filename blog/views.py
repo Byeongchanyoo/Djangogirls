@@ -44,24 +44,8 @@ def post_new(request):
         return JsonResponse({"message": "NOT POST"}, status=HTTPStatus.OK)
 
 
-
-@login_required
 def post_edit(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    if request.method == "POST":
-        form = PostForm(request.POST, instance=post)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.save()
-            post_data = serializers.serialize('json', [post, ])
-            return JsonResponse({'post_data': post_data}, status=HTTPStatus.CREATED)
-        else:
-            msg = {"message": "잘못된 형식입니다."}
-            return JsonResponse(msg, status=HTTPStatus.BAD_REQUEST)
-    else:
-        form = PostForm(instance=post)
-    return render(request, 'blog/post_edit.html', {'form': form})
+    return JsonResponse(data={}, status=200)
 
 
 @login_required
