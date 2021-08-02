@@ -21,7 +21,7 @@ class TestPost(TestCase):
         self.user.set_password(self.password)
         self.user.save()
 
-    def test_post_list_should_return_200_ok_and_post_count_is_30_when_creted_post_count_is_30(self):
+    def test_post_list_should_return_200_ok_and_post_count_is_30_when_created_post_count_is_30(self):
         # Given : 새로운 Post 생성
         for _ in range(30):
             self._create_new_post(self.user, "title", "text")
@@ -44,7 +44,7 @@ class TestPost(TestCase):
         response = self.client.get(reverse("post_detail", kwargs={"pk": post.pk}))
 
         # Then : 200 OK를 반환해야한다.
-        post_data = json.loads(response.json()["post_data"])[0]["fields"]
+        post_data = response.json()["post_data"]
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
         # And : 생성된 post instance 값이 given 값과 같아야 한다.
@@ -70,15 +70,14 @@ class TestPost(TestCase):
         # When : post 생성 요청
         response = self.client.post(reverse("post_new"), data=data)
 
-        # Then : 202
-        post_data = json.loads(response.json()["post_data"])[0]["fields"]
+        # Then : 202 CREATED 를 반환해야한다.
+        post_data = response.json()["post_data"]
         self.assertEqual(response.status_code, HTTPStatus.CREATED)
 
         # And : 생성된 post instance 값이 given 값과 같아야 한다.
         self.assertEqual(post_data["author"], self.user.pk)
         self.assertEqual(post_data["title"], data["title"])
         self.assertEqual(post_data["text"], data["text"])
-        self.assertIsNone(post_data["published_date"])
 
     def test_post_new_if_not_login_should_return_302_found(self):
         # Given : 로그인 안하고 post 데이터 생성
