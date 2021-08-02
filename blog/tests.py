@@ -105,16 +105,17 @@ class TestPost(TestCase):
         # Given: post 1개를 생성하고,
         post = self._create_new_post(user=self.user, title="update_test", text="update_text")
         # And: 사용자가 수정을 요구한 데이터를 설정한다음
-        patch_data = {"title": "updated test title"}
+        put_data = {"title": "updated test title", "text": "updated test text"}
 
         # When: post_update view 를 호출하면,
-        response = self.client.patch(reverse("post_edit", kwargs={"pk": post.pk}), data=patch_data)
+        response = self.client.put(reverse("post_edit", kwargs={"pk": post.pk}), data=put_data)
 
         # Then: status_code가 200으로 리턴되어야 한다
         self.assertEqual(response.status_code, 200)
         # And: post의 title이 "updated test title" 이어야 한다.
         updated_post = Post.objects.get(id=post.id)
         self.assertEqual(updated_post.title, "updated test title")
+        self.assertEqual(updated_post.text, "updated test text")
 
     def test_update_without_login(self):
         # Given : 로그인 하지말고 update 진행해 본다

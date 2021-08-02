@@ -2,12 +2,14 @@ import datetime
 
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
+from django.views.decorators.http import require_http_methods
+
 from .models import Post, Comment
 from .form import PostForm, CommentForm
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from http import HTTPStatus
-from django.http import JsonResponse
+from django.http import JsonResponse, QueryDict
 from django.forms import model_to_dict
 import json
 
@@ -44,12 +46,13 @@ def post_new(request):
         return JsonResponse({"message": "NOT POST"}, status=HTTPStatus.OK)
 
 
+@require_http_methods(["PUT"])
 def post_edit(request, pk):
-    if request.method == "PATCH":
-        post = Post.objects.get(pk=pk)
-        request_body = json.loads(request.body.decode("utf-8").replace("'",'"'))
-        post.title = request_body["title"]
-        post.save()
+    post = Post.objects.get(pk=pk)
+    request_body = json.loads(request.body.decode("utf-8").replace("'", '"'))
+    post.title = request_body["title"]
+    post.text = request_body["text"]
+    post.save()
     return JsonResponse(data={}, status=200)
 
 
