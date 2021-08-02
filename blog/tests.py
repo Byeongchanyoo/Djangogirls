@@ -117,16 +117,17 @@ class TestPost(TestCase):
         self.assertEqual(updated_post.title, "updated test title")
         self.assertEqual(updated_post.text, "updated test text")
 
-    def test_update_without_login(self):
-        # Given : 로그인 하지말고 update 진행해 본다
-        post = self._create_new_post(self.user, "update_test", "update_text")
-        fixed_data = {"title": "fixed_title", "text": "fixed_text"}
+    def test_post_update_should_return_404_does_not_exist(self):
+        # Given: 유효하지않은 pk 가 주어지고,
+        invalid_pk = 123456
+        # And: 사용자가 수정을 요구한 데이터를 설정한다음
+        put_data = {"title": "updated test title", "text": "updated test text"}
 
-        # When : post update 요청
-        response = self.client.post(reverse("post_edit", kwargs={"pk": post.pk}), data=fixed_data)
+        # When: post_update view를 호출하면,
+        response = self.client.put(reverse("post_edit", kwargs={"pk": invalid_pk}), data=put_data)
 
-        # Then : 로그인 페이지로 리다이렉팅 되는지 확인
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        # Then: status_code가 404로 되어야 한다.
+        self.assertEqual(response.status_code, 404)
 
     def test_update_with_bad_case(self):
         # Given : 로그인하고 bad form으로 수정해본다.

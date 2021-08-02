@@ -48,7 +48,10 @@ def post_new(request):
 
 @require_http_methods(["PUT"])
 def post_edit(request, pk):
-    post = Post.objects.get(pk=pk)
+    try:
+        post = Post.objects.get(pk=pk)
+    except Post.DoesNotExist:
+        return JsonResponse(data={}, status=404)
     request_body = json.loads(request.body.decode("utf-8").replace("'", '"'))
     post.title = request_body["title"]
     post.text = request_body["text"]
